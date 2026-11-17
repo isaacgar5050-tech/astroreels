@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AstroReels · Panel</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background:#0d0d12; color:#f2f2f5; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; padding: 18px 14px 40px; max-width: 760px; margin: 0 auto; }
+  header { display:flex; align-items:center; gap:10px; margin-bottom: 6px; }
+  .tvchip { background: linear-gradient(135deg,#ED1C36,#A60A28); color:#fff; font-weight:800; font-size:12px; padding:3px 7px; border-radius:6px; letter-spacing:.5px; }
+  h1 { font-size: 24px; } h1 span { color:#ED1C36; }
+  .sub { color:#9a9aad; font-size:13px; margin-bottom:18px; }
+  section { background:#17171f; border:1px solid #26262f; border-radius:14px; padding:16px; margin-bottom:16px; }
+  h2 { font-size:17px; margin-bottom:12px; }
+  .big { font-size:40px; font-weight:800; color:#3ddc84; }
+  .fuente { display:flex; justify-content:space-between; gap:10px; padding:10px 0; border-top:1px solid #26262f; }
+  .fuente b { display:block; font-size:15px; }
+  .fuente small { color:#9a9aad; }
+  .fuente .monto { font-weight:700; white-space:nowrap; }
+  .nota { color:#9a9aad; font-size:13px; line-height:1.5; margin-top:10px; }
+  label { display:block; font-size:13px; color:#c9c9d4; margin:12px 0 6px; }
+  input, select { width:100%; background:#101018; border:1px solid #33333f; color:#fff; border-radius:10px; padding:11px; font-size:15px; }
+  input[type=file] { padding:9px; }
+  button { background: linear-gradient(135deg,#ED1C36,#A60A28); color:#fff; border:0; border-radius:10px; padding:12px 16px; font-size:15px; font-weight:700; cursor:pointer; width:100%; margin-top:14px; }
+  button:disabled { opacity:.45; cursor:default; }
+  button.secundario { background:#26262f; }
+  .estado { margin-top:12px; font-size:14px; line-height:1.5; min-height:20px; }
+  .ok { color:#3ddc84; } .err { color:#ff6b81; } .info { color:#ffd166; }
+  .serie { padding:10px 0; border-top:1px solid #26262f; }
+  .serie b { font-size:15px; }
+  .barra { background:#26262f; border-radius:99px; height:8px; margin-top:6px; overflow:hidden; }
+  .barra i { display:block; height:100%; background:linear-gradient(90deg,#ED1C36,#ff5f6d); }
+  .serie small { color:#9a9aad; }
+  table { width:100%; border-collapse:collapse; font-size:14px; margin-top:8px; }
+  td, th { padding:7px 4px; border-top:1px solid #26262f; text-align:left; }
+  th { color:#9a9aad; font-weight:600; }
+  .fila2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  @media (max-width:520px){ .fila2{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<header><span class="tvchip">TV</span><h1>Astro<span>Reels</span> · Panel</h1></header>
+<p class="sub">Tu centro de control: subí episodios a la app y mirá las ganancias. Todo se guarda en tu propio repositorio.</p>
+
+<section>
+  <h2>🔑 Tu llave de acceso</h2>
+  <p class="nota" style="margin-top:0">Para poder <b>subir episodios</b> y registrar ganancias, el panel necesita tu llave de GitHub (se crea una sola vez). La llave queda guardada <b>solo en este navegador</b> y solo sirve para este repositorio. Sin llave, el panel igual muestra el catálogo y las ganancias.</p>
+  <label>LLAVE DE GITHUB (empieza con github_pat_)</label>
+  <input type="password" id="token" placeholder="github_pat_..." autocomplete="off">
+  <button class="secundario" onclick="guardarToken()">Guardar llave en este navegador</button>
+  <div class="estado" id="tokenEstado"></div>
+</section>
+
+<section>
+  <h2>💰 Ganancias</h2>
+  <div class="big" id="totalGanancias">$0.00</div>
+  <div id="fuentes"></div>
+  <p class="nota">Hoy la app es un prototipo: el Premium no cobra y los anuncios son tu propio video, por eso el total es $0. Cuando la app se publique en Play Store, acá se registran las ganancias reales de suscripciones y de anuncios (AdMob).</p>
+  <div id="movimientos"></div>
+  <label>REGISTRAR UNA GANANCIA (cuando empiece a entrar plata)</label>
+  <div class="fila2">
+    <input type="text" id="movConcepto" placeholder="Concepto (ej.: Suscripciones de diciembre)">
+    <input type="number" id="movMonto" placeholder="Monto USD (ej.: 25.50)" step="0.01" min="0">
+  </div>
+  <select id="movFuente" style="margin-top:10px">
+    <option value="Suscripciones Premium (Play Store)">Suscripciones Premium (Play Store)</option>
+    <option value="Anuncios (AdMob)">Anuncios (AdMob)</option>
+    <option value="Otro">Otro</option>
+  </select>
+  <button onclick="agregarMovimiento()">Registrar ganancia</button>
+  <div class="estado" id="ganEstado"></div>
+</section>
+
+<section>
+  <h2>⬆️ Subir un episodio</h2>
+  <label>SERIE</label>
+  <select id="upSerie" onchange="cargarEpisodios()"></select>
+  <label>EPISODIO (solo se pueden completar los que dicen «Muy pronto»)</label>
+  <select id="upEpisodio"></select>
+  <label>ARCHIVO DE VIDEO (MP4, ideal la versión ligera, menos de 25 MB)</label>
+  <input type="file" id="upArchivo" accept="video/mp4,video/*">
+  <button id="btnSubir" onclick="subirEpisodio()">Subir y publicar en la app</button>
+  <div class="estado" id="upEstado"></div>
+  <p class="nota">Al subir, el video queda en tu repositorio y el catálogo se actualiza solo: el episodio aparece en la app la próxima vez que se abra, sin reinstalar nada.</p>
+</section>
+
+<section>
+  <h2>📚 Estado del catálogo</h2>
+  <div id="catalogo"><p class="nota">Cargando…</p></div>
+  <button class="secundario" onclick="cargarTodo()">↻ Actualizar</button>
+</section>
+
+<script>
+var OWNER = 'isaacgar5050-tech', REPO = 'astroreels';
+var RAW = 'https://raw.githubusercontent.com/' + OWNER + '/' + REPO + '/main/';
+var API = 'https://api.github.com/repos/' + OWNER + '/' + REPO + '/contents/';
+var catalogo = null, ganancias = null;
+
+function token() { return localStorage.getItem('ar_panel_token') || ''; }
+function guardarToken() {
+  var t = document.getElementById('token').value.trim();
+  var e = document.getElementById('tokenEstado');
+  if (!t) { e.innerHTML = '<span class="err">Pegá primero tu llave.</span>'; return; }
+  localStorage.setItem('ar_panel_token', t);
+  e.innerHTML = '<span class="ok">✅ Llave guardada en este navegador.</span>';
+}
+function b64encode(str) { return btoa(unescape(encodeURIComponent(str))); }
+function b64decode(b64) { return decodeURIComponent(escape(atob(b64.replace(/\s/g, '')))); }
+
+function apiGet(path) {
+  var h = { 'Accept': 'application/vnd.github+json' };
+  if (token()) h['Authorization'] = 'Bearer ' + token();
+  return fetch(API + path, { headers: h }).then(function(r) {
+    if (!r.ok) throw new Error('GitHub respondió ' + r.status);
+    return r.json();
+  });
+}
+function apiPut(path, contentB64, sha, mensaje) {
+  var body = { message: mensaje, content: contentB64 };
+  if (sha) body.sha = sha;
+  return fetch(API + path, {
+    method: 'PUT',
+    headers: { 'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + token(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  }).then(function(r) {
+    if (!r.ok) return r.json().then(function(j){ throw new Error('GitHub respondió ' + r.status + (j.message ? ': ' + j.message : '')); });
+    return r.json();
+  });
+}
+function leerArchivoBase64(file) {
+  return new Promise(function(res, rej) {
+    var fr = new FileReader();
+    fr.onload = function() { res(fr.result.split(',')[1]); };
+    fr.onerror = rej;
+    fr.readAsDataURL(file);
+  });
+}
+
+function cargarTodo() {
+  var t = Date.now();
+  fetch(RAW + 'catalog.json?t=' + t).then(function(r){ return r.json(); }).then(function(c) {
+    catalogo = c; renderCatalogo(); llenarSeries();
+  }).catch(function(){ document.getElementById('catalogo').innerHTML = '<p class="err">No se pudo cargar el catálogo.</p>'; });
+  fetch(RAW + 'ganancias.json?t=' + t).then(function(r){ return r.json(); }).then(function(g) {
+    ganancias = g; renderGanancias();
+  }).catch(function(){ document.getElementById('fuentes').innerHTML = '<p class="err">No se pudo cargar el archivo de ganancias.</p>'; });
+}
+
+function renderCatalogo() {
+  var html = '';
+  catalogo.series.forEach(function(s) {
+    var pub = s.eps.filter(function(e){ return e.media || e.yt; }).length;
+    var pct = s.eps.length ? Math.round(pub * 100 / s.eps.length) : 0;
+    html += '<div class="serie"><b>' + s.title + '</b> <small>· ' + pub + ' de ' + s.eps.length + ' episodios publicados</small>' +
+      '<div class="barra"><i style="width:' + pct + '%"></i></div></div>';
+  });
+  document.getElementById('catalogo').innerHTML = html;
+}
+
+function llenarSeries() {
+  var sel = document.getElementById('upSerie');
+  sel.innerHTML = '';
+  catalogo.series.forEach(function(s) {
+    var o = document.createElement('option'); o.value = s.id; o.textContent = s.title; sel.appendChild(o);
+  });
+  cargarEpisodios();
+}
+
+function cargarEpisodios() {
+  var id = document.getElementById('upSerie').value;
+  var s = catalogo.series.filter(function(x){ return x.id === id; })[0];
+  var sel = document.getElementById('upEpisodio');
+  sel.innerHTML = '';
+  if (!s) return;
+  s.eps.forEach(function(e, i) {
+    var o = document.createElement('option');
+    o.value = i;
+    if (e.media || e.yt) { o.textContent = (i + 1) + '. ' + e.title + ' — ya publicado'; o.disabled = true; }
+    else { o.textContent = (i + 1) + '. ' + e.title + ' — Muy pronto'; }
+    sel.appendChild(o);
+  });
+}
+
+function subirEpisodio() {
+  var est = document.getElementById('upEstado');
+  var btn = document.getElementById('btnSubir');
+  if (!token()) { est.innerHTML = '<span class="err">Primero guardá tu llave de GitHub (arriba de todo).</span>'; return; }
+  var sId = document.getElementById('upSerie').value;
+  var idx = parseInt(document.getElementById('upEpisodio').value, 10);
+  var file = document.getElementById('upArchivo').files[0];
+  if (!file) { est.innerHTML = '<span class="err">Elegí primero el archivo de video.</span>'; return; }
+  if (file.size > 40 * 1024 * 1024) { est.innerHTML = '<span class="err">El archivo pesa más de 40 MB. Usá la versión ligera del episodio.</span>'; return; }
+  var s = catalogo.series.filter(function(x){ return x.id === sId; })[0];
+  var ep = s.eps[idx];
+  btn.disabled = true;
+  est.innerHTML = '<span class="info">⏳ Subiendo el video «' + file.name + '»… no cierres esta página.</span>';
+  leerArchivoBase64(file).then(function(b64) {
+    return apiPut(encodeURIComponent(file.name), b64, null, 'Subir episodio: ' + s.title + ' — ' + ep.title);
+  }).then(function() {
+    est.innerHTML = '<span class="info">⏳ Video subido. Actualizando el catálogo…</span>';
+    return apiGet('catalog.json');
+  }).then(function(j) {
+    var c = JSON.parse(b64decode(j.content));
+    var ss = c.series.filter(function(x){ return x.id === sId; })[0];
+    ss.eps[idx].media = file.name;
+    delete ss.eps[idx].note;
+    var pub = ss.eps.filter(function(e){ return e.media || e.yt; }).length;
+    if (/EPISODIOS? 1–\d+ DISPONIBLES/.test(ss.info)) {
+      ss.info = ss.info.replace(/EPISODIOS? 1–\d+ DISPONIBLES/, 'EPISODIOS 1–' + pub + ' DISPONIBLES');
+    } else if (/EPISODIO 1 DISPONIBLE/.test(ss.info)) {
+      ss.info = ss.info.replace(/EPISODIO 1 DISPONIBLE/, 'EPISODIOS 1–' + pub + ' DISPONIBLES');
+    }
+    return apiPut('catalog.json', b64encode(JSON.stringify(c)), j.sha, 'Catalogo: publicar ' + s.title + ' — ' + ep.title);
+  }).then(function() {
+    est.innerHTML = '<span class="ok">✅ ¡Listo! «' + ep.title + '» ya está publicado. Abrí la app (cerrala y volvé a abrirla) y el episodio aparece solo.</span>';
+    btn.disabled = false;
+    setTimeout(cargarTodo, 3000);
+  }).catch(function(err) {
+    est.innerHTML = '<span class="err">Algo falló: ' + err.message + '. Revisá tu llave e intentá de nuevo.</span>';
+    btn.disabled = false;
+  });
+}
+
+function dinero(n) { return '$' + Number(n || 0).toFixed(2); }
+
+function renderGanancias() {
+  document.getElementById('totalGanancias').textContent = dinero(ganancias.total);
+  var html = '';
+  ganancias.fuentes.forEach(function(f) {
+    html += '<div class="fuente"><div><b>' + f.nombre + '</b><small>' + (f.estado || '') + '</small></div><div class="monto">' + dinero(f.total) + '</div></div>';
+  });
+  document.getElementById('fuentes').innerHTML = html;
+  var mv = document.getElementById('movimientos');
+  if (!ganancias.movimientos || !ganancias.movimientos.length) {
+    mv.innerHTML = '<p class="nota">Todavía no hay movimientos registrados.</p>';
+  } else {
+    var rows = ganancias.movimientos.slice().reverse().map(function(m) {
+      return '<tr><td>' + m.fecha + '</td><td>' + m.concepto + '</td><td>' + m.fuente + '</td><td>' + dinero(m.monto) + '</td></tr>';
+    }).join('');
+    mv.innerHTML = '<table><tr><th>Fecha</th><th>Concepto</th><th>Fuente</th><th>Monto</th></tr>' + rows + '</table>';
+  }
+}
+
+function agregarMovimiento() {
+  var est = document.getElementById('ganEstado');
+  if (!token()) { est.innerHTML = '<span class="err">Primero guardá tu llave de GitHub (arriba de todo).</span>'; return; }
+  var concepto = document.getElementById('movConcepto').value.trim();
+  var monto = parseFloat(document.getElementById('movMonto').value);
+  var fuente = document.getElementById('movFuente').value;
+  if (!concepto || !(monto > 0)) { est.innerHTML = '<span class="err">Escribí el concepto y un monto mayor a 0.</span>'; return; }
+  est.innerHTML = '<span class="info">⏳ Registrando…</span>';
+  apiGet('ganancias.json').then(function(j) {
+    var g = JSON.parse(b64decode(j.content));
+    var hoy = new Date();
+    var fecha = hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0') + '-' + String(hoy.getDate()).padStart(2, '0');
+    g.movimientos.push({ fecha: fecha, concepto: concepto, fuente: fuente, monto: monto });
+    g.total = g.movimientos.reduce(function(a, m){ return a + Number(m.monto || 0); }, 0);
+    g.fuentes.forEach(function(f) {
+      f.total = g.movimientos.filter(function(m){ return m.fuente === f.nombre; }).reduce(function(a, m){ return a + Number(m.monto || 0); }, 0);
+    });
+    g.actualizado = fecha;
+    return apiPut('ganancias.json', b64encode(JSON.stringify(g, null, 1)), j.sha, 'Ganancias: ' + concepto);
+  }).then(function() {
+    est.innerHTML = '<span class="ok">✅ Ganancia registrada.</span>';
+    document.getElementById('movConcepto').value = '';
+    document.getElementById('movMonto').value = '';
+    setTimeout(cargarTodo, 3000);
+  }).catch(function(err) {
+    est.innerHTML = '<span class="err">Algo falló: ' + err.message + '</span>';
+  });
+}
+
+if (token()) document.getElementById('tokenEstado').innerHTML = '<span class="ok">✅ Ya hay una llave guardada en este navegador.</span>';
+cargarTodo();
+</script>
+</body>
+</html>
