@@ -418,7 +418,7 @@
    "row": "fantasia",
    "meta": "Serie animada · Fantasía",
    "syn": "En la manada, todos creen que Kael es el lobo más débil porque es el más pobre… hasta que la luna llena revela sus ojos dorados: el Alfa verdadero.",
-   "info": "EPISODIOS 1–29 DISPONIBLES · LOS DEMÁS EN PRODUCCIÓN",
+   "info": "EPISODIOS 1–30 DISPONIBLES · LOS DEMÁS EN PRODUCCIÓN",
    "eps": [
     {
      "title": "El más débil",
@@ -535,7 +535,10 @@
     {
      "title": "Vendrán sabiendo",
      "media": "alfa-ep29-vendran-sabiendo-ligero.mp4"
-    }
+    },
+    {
+     "title": "Una sola noche",
+     "media": "alfa-ep30-una-sola-noche-ligero.mp4"
    ]
   }
  ]
