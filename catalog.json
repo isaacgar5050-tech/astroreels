@@ -418,7 +418,7 @@
    "row": "fantasia",
    "meta": "Serie animada · Fantasía",
    "syn": "En la manada, todos creen que Kael es el lobo más débil porque es el más pobre… hasta que la luna llena revela sus ojos dorados: el Alfa verdadero.",
-   "info": "EPISODIOS 1–35 DISPONIBLES · LOS DEMÁS EN PRODUCCIÓN",
+   "info": "EPISODIOS 1–36 DISPONIBLES · LOS DEMÁS EN PRODUCCIÓN",
    "eps": [
     {
      "title": "El más débil",
@@ -560,8 +560,12 @@
      "n": 35,
      "title": "La retaguardia",
      "media": "alfa-ep35-la-retaguardia-ligero.mp4"
+    },
+    {
+     "title": "Vendrán todas",
+     "media": "alfa-ep36-vendran-todas-ligero.mp4"
     }
-   ]
+       ]   
   }
  ]
 }
